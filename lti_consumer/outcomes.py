@@ -74,7 +74,12 @@ def parse_grade_xml_body(body):
         raise LtiError('Failed to parse score textString from XML request body')
 
     # Raise exception if score is not float or not in range 0.0-1.0 regarding spec.
-    score = float(score)
+    if ',' in score:
+        score = score.replace(',', '.')
+    try:
+        score = float(score)
+    except ValueError:
+        raise LtiError("score value is not float")
     if not 0.0 <= score <= 1.0:
         raise LtiError('score value outside the permitted range of 0.0-1.0')
 
