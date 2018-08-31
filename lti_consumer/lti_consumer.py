@@ -411,14 +411,14 @@ class LtiConsumerXBlock(StudioEditableXBlockMixin, XBlock):
         display_name=_("Request user's username"),
         # Translators: This is used to request the user's username for a third party service.
         help=_("Select True to request the user's username."),
-        default=False,
+        default=True,  # default lti provider is Stepik => we have to set ask_to_send_email True
         scope=Scope.settings
     )
     ask_to_send_email = Boolean(
         display_name=_("Request user's email"),
         # Translators: This is used to request the user's email for a third party service.
         help=_("Select True to request the user's email address."),
-        default=False,
+        default=True,  # default lti provider is Stepik => we have to set ask_to_send_email True
         scope=Scope.settings
     )
 
@@ -442,22 +442,24 @@ class LtiConsumerXBlock(StudioEditableXBlockMixin, XBlock):
         'ask_to_send_email' fields depending on the configuration service.
         """
         editable_fields = self.editable_field_names
-        # update the editable fields if this XBlock is configured to not to allow the
-        # editing of 'ask_to_send_username' and 'ask_to_send_email'.
-        config_service = self.runtime.service(self, 'lti-configuration')
-        if config_service:
-            is_already_sharing_learner_info = self.ask_to_send_email or self.ask_to_send_username
-            if not config_service.configuration.lti_access_to_learners_editable(
-                    self.course_id,
-                    is_already_sharing_learner_info,
-            ):
-                editable_fields = tuple(
-                    field
-                    for field in self.editable_field_names
-                    if field not in ('ask_to_send_username', 'ask_to_send_email')
-                )
-
+        # In our case we always want have ability to set ask_to_send_username and ask_to_send_email
         return editable_fields
+        # # update the editable fields if this XBlock is configured to not to allow the
+        # # editing of 'ask_to_send_username' and 'ask_to_send_email'.
+        # config_service = self.runtime.service(self, 'lti-configuration')
+        # if config_service:
+        #     is_already_sharing_learner_info = self.ask_to_send_email or self.ask_to_send_username
+        #     if not config_service.configuration.lti_access_to_learners_editable(
+        #             self.course_id,
+        #             is_already_sharing_learner_info,
+        #     ):
+        #         editable_fields = tuple(
+        #             field
+        #             for field in self.editable_field_names
+        #             if field not in ('ask_to_send_username', 'ask_to_send_email')
+        #         )
+        # 
+        # return editable_fields
 
     @property
     def descriptor(self):
